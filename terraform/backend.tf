@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "your-terraform-state-bucket"
+    bucket = "devops2025-tfstate-bucket"
     key    = "codepipeline/terraform.tfstate"
     region = "us-east-1"
   }
