@@ -1,4 +1,6 @@
-# IAM Role for CodePipeline
+##############################
+# IAM Role for CodePipeline #
+##############################
 resource "aws_iam_role" "codepipeline_role" {
   name = "CodePipelineRole"
 
@@ -14,7 +16,6 @@ resource "aws_iam_role" "codepipeline_role" {
   })
 }
 
-# ✅ Inline Policy for CodePipeline (Instead of AttachRolePolicy)
 resource "aws_iam_role_policy" "codepipeline_inline_policy" {
   name = "CodePipelineInlinePolicy"
   role = aws_iam_role.codepipeline_role.id
@@ -40,7 +41,9 @@ resource "aws_iam_role_policy" "codepipeline_inline_policy" {
   })
 }
 
-# IAM Role for CodeBuild
+###########################
+# IAM Role for CodeBuild #
+###########################
 resource "aws_iam_role" "codebuild_role" {
   name = "CodeBuildRole"
 
@@ -50,27 +53,6 @@ resource "aws_iam_role" "codebuild_role" {
       Effect = "Allow"
       Principal = {
         Service = "codebuild.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "codebuild_policy" {
-  role       = aws_iam_role.codebuild_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess"
-}
-
-# IAM Role for CodeDeploy
-resource "aws_iam_role" "codedeploy_role" {
-  name = "CodeDeployRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "codedeploy.amazonaws.com"
       }
       Action = "sts:AssumeRole"
     }]
@@ -92,3 +74,30 @@ resource "aws_iam_role_policy_attachment" "codebuild_policy_basic" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
 }
 
+############################
+# IAM Role for CodeDeploy #
+############################
+resource "aws_iam_role" "codedeploy_role" {
+  name = "CodeDeployRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "codedeploy.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codedeploy_policy_codedeploy" {
+  role       = aws_iam_role.codedeploy_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+}
+
+resource "aws_iam_role_policy_attachment" "codedeploy_policy_ec2" {
+  role       = aws_iam_role.codedeploy_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
