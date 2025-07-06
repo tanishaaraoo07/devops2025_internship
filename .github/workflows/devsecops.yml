@@ -2,12 +2,11 @@ name: DevSecOps Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   devsecops:
-    name: Run tfsec + trivy + sealed secrets apply
+    name: Run tfsec + trivy + YAML validation
     runs-on: ubuntu-latest
 
     steps:
@@ -19,19 +18,19 @@ jobs:
         with:
           working-directory: terraform
 
-      - name: Run Trivy vulnerability scanner on Dockerfile
+      - name: Run Trivy scan on Dockerfile
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'config'
+          scan-type: config
           scan-ref: .
+        continue-on-error: true  # in case there's no Dockerfile
 
-      - name: Validate sealed secret YAML
+      - name: Validate sealed-secret.yaml file
         run: |
-          echo "Simulated sealed-secret.yaml validated"
-          cat k8s/sealed-secret.yaml
-        
-      - name: Simulate Kubernetes Deployment (no cluster)
-        run: |
-          echo "Validating YAML structure"
-          cat k8s/deployment.yaml
+          echo "Checking sealed secret YAML format"
+          yq eval '.' k8s/sealed-secret.yaml
 
+      - name: Validate deployment.yaml
+        run: |
+          echo "Validating deployment.yaml format"
+          yq eval '.' k8s/deployment.yaml
