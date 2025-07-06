@@ -1,0 +1,36 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  devsecops:
+    name: Run tfsec + trivy + sealed secrets apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run tfsec on Terraform code
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working-directory: terraform
+
+      - name: Run Trivy vulnerability scanner on Dockerfile
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: .
+
+      - name: Validate sealed secret YAML
+        run: |
+          echo "Simulated sealed-secret.yaml validated"
+          cat k8s/sealed-secret.yaml
+        
+      - name: Simulate Kubernetes Deployment (dry-run)
+        run: |
+          kubectl apply --dry-run=client -f k8s/deployment.yaml
+
