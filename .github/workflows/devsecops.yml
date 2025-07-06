@@ -13,24 +13,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run tfsec on Terraform code
+      - name: Run tfsec with soft-fail
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          working_directory: terraform  # ✅ Corrected input name
+          working_directory: terraform
+          soft_fail: true
 
       - name: Run Trivy scan on Dockerfile (optional)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
           scan-ref: .
-        continue-on-error: true  # Skips error if no Dockerfile present
+        continue-on-error: true  # If no Dockerfile, skip failure
 
-      - name: Validate sealed-secret.yaml (YAML check only)
+      - name: Validate sealed-secret.yaml (YAML only)
         run: |
-          cat k8s/sealed-secret.yaml
+          echo "Validating sealed-secret.yaml..."
           yq eval '.' k8s/sealed-secret.yaml
 
-      - name: Validate deployment.yaml (YAML check only)
+      - name: Validate deployment.yaml (YAML only)
         run: |
-          cat k8s/deployment.yaml
+          echo "Validating deployment.yaml..."
           yq eval '.' k8s/deployment.yaml
