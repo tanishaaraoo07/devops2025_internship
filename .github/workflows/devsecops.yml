@@ -16,21 +16,21 @@ jobs:
       - name: Run tfsec on Terraform code
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          working-directory: terraform
+          working_directory: terraform  # ✅ Corrected input name
 
-      - name: Run Trivy scan on Dockerfile
+      - name: Run Trivy scan on Dockerfile (optional)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
           scan-ref: .
-        continue-on-error: true  # in case there's no Dockerfile
+        continue-on-error: true  # Skips error if no Dockerfile present
 
-      - name: Validate sealed-secret.yaml file
+      - name: Validate sealed-secret.yaml (YAML check only)
         run: |
-          echo "Checking sealed secret YAML format"
+          cat k8s/sealed-secret.yaml
           yq eval '.' k8s/sealed-secret.yaml
 
-      - name: Validate deployment.yaml
+      - name: Validate deployment.yaml (YAML check only)
         run: |
-          echo "Validating deployment.yaml format"
+          cat k8s/deployment.yaml
           yq eval '.' k8s/deployment.yaml
